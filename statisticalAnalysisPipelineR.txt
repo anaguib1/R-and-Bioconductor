@@ -1,0 +1,304 @@
+#Find data with class structure (e.g. disease vs. control)
+
+MMTV/c-MYC transgenic model of breast cancer: peripheral blood cells
+
+Analysis of PBCs from FVB/NJ female, MMTV/c-MYC transgenics with advanced mammary tumors versus tumor-free controls matched for age and parity. These results, together with results from breast cancer patients, provide a foundation for developing a human breast tumor predictor.
+
+GPL1261: [Mouse430_2] Affymetrix Mouse Genome 430 2.0 Array
+
+Sample count: 93
+
+http://www.ncbi.nlm.nih.gov/sites/GDSbrowser?acc=GDS3953
+
+#Load into R
+
+> install.packages(â€œGEOqueryâ€)
+> install.packages("RCurl")
+> library(RCurl)
+> library(Biobase)
+> library(GEOquery)
+
+> gds3953 <- getGEO('GDS3953', destdir="/Users/ahmednaguib/Downloads")
+
+#turn GDS object into an expression set object
+
+eset <- GDS2eSet(gds3953, do.log2=TRUE)
+pData(eset)$disease.state
+
+#Load expression data into a datagram for further manipulation
+
+expression.df <- exprs(eset)
+> dim(expression.df)
+[1] 45101    93
+
+#To re label the header columns first I created a new column that would concatenate both the ID and identity vector using the paste function then I replaced the column with the new column names. At the end I checked that the column names have been changed properly using the colnames function
+
+> class1 <- numeric(0)
+> i=1
+> for (i in 1:28) {class1[i] <- "Normal"; i = i+1;}
+> i=29
+> for (i in 29:93) {class1[i] <- "Tumor"; i = i+1;}
+> class1
+ [1] "Normal" "Normal" "Normal" "Normal" "Normal" "Normal" "Normal" "Normal"
+ [9] "Normal" "Normal" "Normal" "Normal" "Normal" "Normal" "Normal" "Normal"
+[17] "Normal" "Normal" "Normal" "Normal" "Normal" "Normal" "Normal" "Normal"
+[25] "Normal" "Normal" "Normal" "Normal" "Tumor"  "Tumor"  "Tumor"  "Tumor" 
+[33] "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor" 
+[41] "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor" 
+[49] "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor" 
+[57] "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor" 
+[65] "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor" 
+[73] "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor" 
+[81] "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor" 
+[89] "Tumor"  "Tumor"  "Tumor"  "Tumor"  "Tumor"
+
+> newcolnames <- paste(colnames(expression.df), class1, sep="_")
+> colnames(expression.df)<- newcolnames
+> colnames(expression.df)
+ [1] "GSM682146_Normal" "GSM682147_Normal" "GSM682148_Normal" "GSM682149_Normal"
+ [5] "GSM682150_Normal" "GSM682151_Normal" "GSM682152_Normal" "GSM682153_Normal"
+ [9] "GSM682154_Normal" "GSM682155_Normal" "GSM682156_Normal" "GSM682157_Normal"
+[13] "GSM682158_Normal" "GSM682159_Normal" "GSM682192_Normal" "GSM682193_Normal"
+[17] "GSM682194_Normal" "GSM682195_Normal" "GSM682196_Normal" "GSM682197_Normal"
+[21] "GSM682198_Normal" "GSM682199_Normal" "GSM682200_Normal" "GSM682201_Normal"
+[25] "GSM682202_Normal" "GSM682203_Normal" "GSM682204_Normal" "GSM682205_Normal"
+[29] "GSM682160_Tumor"  "GSM682161_Tumor"  "GSM682162_Tumor"  "GSM682163_Tumor" 
+[33] "GSM682164_Tumor"  "GSM682165_Tumor"  "GSM682166_Tumor"  "GSM682167_Tumor" 
+[37] "GSM682168_Tumor"  "GSM682169_Tumor"  "GSM682170_Tumor"  "GSM682171_Tumor" 
+[41] "GSM682172_Tumor"  "GSM682173_Tumor"  "GSM682174_Tumor"  "GSM682175_Tumor" 
+[45] "GSM682176_Tumor"  "GSM682177_Tumor"  "GSM682178_Tumor"  "GSM682179_Tumor" 
+[49] "GSM682180_Tumor"  "GSM682181_Tumor"  "GSM682182_Tumor"  "GSM682183_Tumor" 
+[53] "GSM682184_Tumor"  "GSM682185_Tumor"  "GSM682186_Tumor"  "GSM682187_Tumor" 
+[57] "GSM682188_Tumor"  "GSM682189_Tumor"  "GSM682190_Tumor"  "GSM682191_Tumor" 
+[61] "GSM682206_Tumor"  "GSM682207_Tumor"  "GSM682208_Tumor"  "GSM682209_Tumor" 
+[65] "GSM682210_Tumor"  "GSM682211_Tumor"  "GSM682212_Tumor"  "GSM682213_Tumor" 
+[69] "GSM682214_Tumor"  "GSM682215_Tumor"  "GSM682216_Tumor"  "GSM682217_Tumor" 
+[73] "GSM682218_Tumor"  "GSM682219_Tumor"  "GSM682220_Tumor"  "GSM682221_Tumor" 
+[77] "GSM682222_Tumor"  "GSM682223_Tumor"  "GSM682224_Tumor"  "GSM682225_Tumor" 
+[81] "GSM682226_Tumor"  "GSM682227_Tumor"  "GSM682228_Tumor"  "GSM682229_Tumor" 
+[85] "GSM682230_Tumor"  "GSM682231_Tumor"  "GSM682232_Tumor"  "GSM682233_Tumor" 
+[89] "GSM682234_Tumor"  "GSM682235_Tumor"  "GSM682236_Tumor"  "GSM682237_Tumor" 
+[93] "GSM682238_Tumor" 
+
+
+## Identify any outlier samples
+
+#Correlation plot
+
+> exp.cor <- cor(expression.df)â€¨> layout(matrix(c(1,1,1,1,1,1,1,1,2,2), 5, 2, byrow = TRUE))â€¨> par(oma=c(5,7,1,1))â€¨> leg <- seq(min(exp.cor,na.rm=T),max(exp.cor,na.rm=T),length=10)â€¨> image(exp.cor,main="Pearson's correlation matrix\n MMTV/c-MYC transgenic model of breast cancer: peripheral blood cells",axes=F)â€¨> axis(1,at=seq(0,1,length=ncol(exp.cor)),label=dimnames(exp.cor)[[2]],cex.axis=0.9,las=2) 
+> axis(2,at=seq(0,1,length=ncol(exp.cor)),label=dimnames(exp.cor)[[2]],cex.axis=0.9,las=2) 
+
+
+#Hierarchical clustering dendrogram
+
+> expression.df.transposed <- t(expression.df)â€¨> euc.distance <- dist(expression.df.transposed,method="euclidean")â€¨> clust.single <- hclust(euc.distance,method="single")â€¨> plot(clust.single,labels=names(expression.df.transposed),cex=0.75)
+
+
+#Average correlation plot
+
+> exp.avg <- apply(exp.cor,1,mean) 
+> par(oma=c(3,0.1,0.1,0.1))
+> plot(c(1,length(exp.avg)),range(exp.avg),type="n",xlab="",ylab="Avg r",main="Avg correlation of Tumor/Normal samples",axes=F)â€¨> points(exp.avg,bg="red",col=1,pch=21,cex=1.25)â€¨> axis(1,at=c(1:length(exp.avg)),labels=dimnames(expression.df)[[2]],las=2,cex.lab=0.4,cex.axis=0.6)
+> axis(2)
+
+
+## Based on all four plots there is a consensus that the following 5 samples are considered outliers: GSM682163, GSM682207, GSM682211, GSM682214, and GSM682224.
+
+## Remove outliers
+
+> expression.df <- subset(expression.df, select = -GSM682163_Tumor) 
+> expression.df <- subset(expression.df, select = -GSM682207_Tumor) 
+> expression.df <- subset(expression.df, select = -GSM682211_Tumor) 
+> expression.df <- subset(expression.df, select = -GSM682214_Tumor) 
+> expression.df <- subset(expression.df, select = -GSM682224_Tumor) 
+
+# Look at new dimension of data frame
+
+> dim(expression.df)
+[1] 45101    88
+
+
+## Filter out genes that have low expression values using criterion: 
+## CVs less than the 5% mark
+
+#calculate CVs
+> exp.mean.row <- apply(log2(expression.df), 1, mean)
+> exp.sd.row <- sqrt(apply(log2(expression.df), 1, var))
+> exp.cv.row <- exp.sd.row/exp.mean.row
+
+> plot(exp.mean.row, exp.cv.row,main="MMTV/c-MYC transgenic model of breast cancer: peripheral blood cells\nGene CV vs. Mean",xlab="Mean",ylab="CV",col='blue',cex=1.5,type="n") 
+> points(exp.mean.row, exp.cv.row,bg="lightblue",col=1,pch=21)
+> text(exp.mean.row, exp.cv.row,label=dimnames(expression.df)[[2]],pos=1,cex=0.5)
+
+> qt.cv <- quantile( exp.cv.row , probs = c(0.05,0.8) )
+> qt.cv
+         5%         80% 
+0.008178504 0.266882619
+> rows.cv <- exp.cv.row > qt.cv[1]
+
+> abline(h=0.008178504,col="red")
+
+#remove CVs less than the 5% mark
+> expression.df.filtered.cv <- expression.df[rows.cv,]
+> dim(expression.df.filtered.cv)
+[1] 42845    88
+
+2,256 genes were removed based on the criterion of CVs less than 5%.
+
+##### store high expression genes in object just as a reference for downstream analysis
+
+> qt.cv <- quantile( exp.cv.row , probs = c(0.05,0.8, 0.999) )
+highly.expressed <- exp.cv.row > qt.cv[3]
+> expression.df.highly.expressed.cv <- expression.df[highly.expressed,]
+> dim(expression.df.highly.expressed.cv)
+[1] 46 88
+
+
+## Feature Selection
+
+> expression.df.filtered.cv2 <- log2(expression.df.filtered.cv)
+> t.test.all.genes <- function(x,s1,s2) {
+ x1 <- x[s1]
+ x2 <- x[s2]
+ x1 <- as.numeric(x1)
+ x2 <- as.numeric(x2)
+ t.out <- t.test(x1,x2, alternative="two.sided",var.equal=T)
+ out <- as.numeric(t.out$p.value)
+ return(out)
+ }
+
+> cl <- colnames(expression.df.filtered.cv2)
+> head(colnames(expression.df.filtered.cv2))
+[1] "GSM682146_Normal" "GSM682147_Normal" "GSM682148_Normal" "GSM682149_Normal"
+[5] "GSM682150_Normal" "GSM682151_Normal"
+
+> controls <- cl[1:28]
+> tumor <- cl[29:88]
+
+> pv <- apply(expression.df.filtered.cv2, 1, t.test.all.genes, s1= controls, s2= tumor)
+> length(pv)
+[1] 44971
+
+> hist(pv,col="lightblue",xlab="p-values",main="Feature Selection: Two sample T- test between Control and Tumor groups\n P-value < .05",cex.main=0.9)
+> abline(v=.05,col=2,lwd=2)
+
+> pv.05<- pv[which(pv < .05)]
+> length(pv.05)
+[1] 21757
+
+## Histogram of P-value Scores of Genes with P < .05 
+
+> hist(pv.05, main="Histogram of P-value Scores of Genes with P < .05")
+
+## Subset data with genes (p < .05)
+
+> pv.05m <- as.matrix(pv.05)
+> rows.to.keep<-which(rownames(expression.df.filtered.cv2) %in% rownames(pv.05m))
+> subsetted.genes <- expression.df.filtered.cv2[rows.to.keep,]
+> dim(subsetted.genes)
+[1] 21757    88
+
+
+## dimensionality reduction methods to visualize the samples in two-dimensional space
+
+#Scree plot
+
+> pca <- prcomp(t(subsetted.genes),cor=F)
+> pca.var <- round(pca$sdev^2 / sum(pca$sdev^2)*100,2)
+> plot(c(1:length(pca.var)),pca.var,type="b",xlab="# components",ylab="% variance",pch=21,col=1,bg=3,cex=1.5)
+> title("Scree plot showing % variability explained by each eigenvalue\nTumor/Control dataset")
+> head(pca.var)
+[1] 18.89 12.08  5.59  3.63  2.73  2.46
+Using only the first two eigenvalues, 30.97% of variability in the data is explained
+
+#PCA
+
+> loadings <- pca$x[,1:3]
+> par(mfrow=c(2,2))
+> plot(range(loadings[,1]),range(loadings[,2]),type="n",xlab='p1',ylab='p2',main='PCA plot \np2 vs. p1')
+> points(loadings[1:28,1], loadings[1:28,2],col=1,bg='red',pch=21,cex=1.5)
+> points(loadings[29:88,1],loadings[29:88,2],col=1,bg='blue',pch=21,cex=1.5)
+
+
+## Classification method to classify the samples into their respective classes
+
+
+#LDA
+
+> pca <- prcomp(t(subsetted.genes),cor=F)
+> loadings2 <- pca$x[,1:2]
+> cl2 <- kmeans(loadings2, centers=2, iter.max=20)
+> plot(loadings2, col = cl2$cluster,cex=1, main='PCA plot of Subsetted Genes\np2 vs. p1')
+> text(loadings2[1:28,1], loadings2[1:28,2], "Control", cex=0.6, pos=4, col="blue")
+> text(loadings2[29:88,1], loadings2[29:88,2], "Tumor", cex=0.6, pos=4, col="blue")
+
+clas <- factor(eset$class)
+> clas <- numeric(0)
+> i=1
+> for (i in 1:28) {clas[i] <- "Normal"; i = i+1;}
+> i=29
+> for (i in 29:88) {clas[i] <- "Tumor"; i = i+1;}
+
+# discriminant analysis
+  
+library(MASS)
+  dat <- as.data.frame(loadings2)
+  dat <- data.frame(clas,dat)
+  dat.lda <- lda(clas~.,dat)    
+  dat.pred <- predict(dat.lda,dat)  # lda prediction
+  
+
+> out.all <- predict(lda.training.all.genes, test)
+table(dat.pred$class,clas)â€™
+> table(dat.pred$class,clas)
+        clas
+         Normal Tumor
+  Normal     25     2
+  Tumor       3    58
+out.all <- dat.pred
+
+> plot(out.all$x[,1], type='n', main='LDA of Breast Cancer Data')
+> points(out.all$x[1:28,1],  col='red', pch=16, cex=1.5)
+> points(out.all$x[29:88,1],  col='blue', pch=16, cex=1.5)
+> text(out.all$x[1:28,1], "Normal", cex=0.6, pos=4, col="black")
+> text(out.all$x[29:88,1], "Tumor", cex=0.6, pos=4, col="black")
+
+add_legend <- function(...) {
+ opar <- par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0),
+ mar=c(0, 0, 0, 0), new=TRUE)
+ on.exit(par(opar))
+ plot(0, 0, type='n', bty='n', xaxt='n', yaxt='n')
+ legend(...)
+}
+
+> add_legend("topright", legend=c("Normal","Tumor"),pch= 16,col=c("red","blue"),horiz=F,bty='n', cex=1.5)
+
+
+## Top 5 Discriminant Genes (positive and negative direction) 
+
+> pca2 <- prcomp((subsetted.genes),cor=F)
+> loadings22 <- pca2$x[,1:2]
+> cl22 <- kmeans(loadings22, centers=2, iter.max=20)
+> plot(loadings22, col = cl22$cluster,cex=1, main='PCA plot of Subsetted Genes\np2 vs. p1')
+text(loadings22$x[1428807_at,1], â€œ*â€, cex=0.6, pos=4, col=â€œgreenâ€)
+
+goi <- as.data.frame(loadings22[1: 21757,1])
+
+#positive
+> rownames(goi)[order(goi, decreasing=TRUE)][1:5]
+[1] "1428807_at" "1430186_at" "1457619_at" "1459072_at" "1439618_at"
+
+#negative
+> rownames(goi)[order(goi, decreasing=FALSE)][1:5]
+[1] "1448245_at"   "1419569_a_at" "1416546_a_at" "1441917_s_at"
+[5] "1436530_at"  
+
+
+
+
+
+
+
+
+
+
