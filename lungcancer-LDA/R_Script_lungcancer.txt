@@ -1,0 +1,94 @@
+> lung.df <- read.table("lung_cancer.txt", header = TRUE)
+> dim(lung.df)
+[1] 3013 25
+> head(colnames(lung.df))
+[1] "probe" "Adeno1" "Adeno2" "Adeno3" "Adeno4" "Adeno5"
+
+> library(MASS)
+> lung.df <- lung.df[,-1]
+> dim(lung.df)
+[1] 3013 24
+> colnames(lung.df) <- NULL
+> clas <- c("Adeno", "Adeno", "Adeno", "Adeno", "Adeno", "Adeno", "Adeno", "Adeno",
+"Adeno", "Adeno", "SCLC", "SCLC", "SCLC", "SCLC", "SCLC", "SCLC", "SCLC",
+"SCLC", "SCLC", "Normal", "Normal", "Normal", "Normal", "Normal")
+> length(clas)
+[1] 24
+#transposition of the data matrix
+lung.df.t <-(t(as.matrix(lung.df)))
+> class(lung.df.t)
+[1] "matrix"
+#bind class and transposed data matrix
+> dat.c <- data.frame(clas, lung.df.t)
+> dat.c[1:5, 1:3]
+ clas X1 X2
+1 Adeno 9.26 5.15
+2 Adeno 8.69 4.57
+3 Adeno 8.51 5.20
+4 Adeno 8.38 4.92
+5 Adeno 7.70 4.60
+#check dimensions to be 24 x 3014
+> dim(dat.c)
+[1] 24 3014
+> dat.c <- as.matrix(dat.c)
+> class(dat.c)
+[1] "matrix"
+
+#training set and test set matrices
+> training <- dat.c[c(1:6, 11:16, 20:22),]
+> test <- dat.c[c(7:10, 17:19, 23:24),]
+#sample classes of the test matrix
+> lab <- test[,1]
+#remove the first column from the test set
+> test <- test[,-1]
+
+> table(out$class,lab)
+> lab2 <- training[,1]
+> lda.training <- lda(lab2~. , training[,2:3])
+> out <- predict(lda.training, test[1:2])
+> table(out$class,lab)
+ lab
+ Adeno Normal SCLC
+ Adeno 1 1 1
+ Normal 0 1 0
+ SCLC 3 0 2
+ 
+ > lda.test <- predict(lda.train,test[,1:2])
+ > lda.test$x
+ 
+ > plot(out$x[,1], out$x[,2], type='n', main='LDA of Lung Cancer Data')
+> points(out$x[1:4,1], out$x[1:4,2], col='red', pch=16, cex=1.5)
+> points(out$x[5:7,1], out$x[5:7,2], col='orange', pch=16, cex=1.5)
+> points(out$x[8:9,1], out$x[8:9,2], col='blue', pch=16, cex=1.5)
+> text(out$x[1:4,1], out$x[1:4,2], "Adeno", cex=0.6, pos=4, col="black")
+> text(out$x[5:7,1], out$x[5:7,2], "SCLC", cex=0.6, pos=4, col="black")
+> text(out$x[8:9,1], out$x[8:9,2], "Normal", cex=0.6, pos=4, col="black")
+add_legend <- function(...) {
+ opar <- par(fig=c(0, 1, 0, 1), oma=c(0, 0, 0, 0),
+ mar=c(0, 0, 0, 0), new=TRUE)
+ on.exit(par(opar))
+ plot(0, 0, type='n', bty='n', xaxt='n', yaxt='n')
+ legend(...)
+}
+> add_legend("topright", legend=c("Adeno","SCLC","Normal"),pch= 16,col=c("red","
+orange","blue"),horiz=F,bty='n', cex=1.5)
+
+> lab2 <- training[,1]
+> lda.training.all.genes <- lda(lab2~. , training[,2:3014])
+> out.all <- predict(lda.training.all.genes, test)
+> table(out.all$class,lab)
+ lab
+ Adeno Normal SCLC
+ Adeno 4 0 0
+ Normal 0 2 0
+ SCLC 0 0 3
+ 
+ > plot(out.all$x[,1], out.all$x[,2], type='n', main='LDA of Lung Cancer Data')
+> points(out.all$x[1:4,1], out.all$x[1:4,2], col='red', pch=16, cex=1.5)
+> points(out.all$x[5:7,1], out.all$x[5:7,2], col='orange', pch=16, cex=1.5)
+> points(out.all$x[8:9,1], out.all$x[8:9,2], col='blue', pch=16, cex=1.5)
+> text(out.all$x[1:4,1], out.all$x[1:4,2], "Adeno", cex=0.6, pos=4, col="black")
+> text(out.all$x[5:7,1], out.all$x[5:7,2], "SCLC", cex=0.6, pos=4, col="black")
+> text(out.all$x[8:9,1], out.all$x[8:9,2], "Normal", cex=0.6, pos=4, col="black")
+> add_legend("topright", legend=c("Adeno","SCLC","Normal"),pch= 16,col=c("red","
+orange","blue"),horiz=F,bty='n', cex=1.5)
