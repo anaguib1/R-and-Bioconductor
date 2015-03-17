@@ -1,0 +1,219 @@
+> eisen.df <- read.table("eisen.txt", header = T, na.strings="NA", blank.lines.skip=F, row.names = 1)
+> dim(eisen.df)
+[1] 13412 40
+
+> eisenClasses <- read.table("eisenClasses.txt", header=T)
+> dim(eisenClasses)
+[1] 39 2
+
+> dimnames(eisen.df)[[2]]
+ [1] "DLCL.0001" "DLCL.0002" "DLCL.0003" "DLCL.0004" "DLCL.0005" "DLCL.0006"
+"DLCL.0007" "DLCL.0008" "DLCL.0009" "DLCL.0010" "DLCL.0011" "DLCL.0012"
+[13] "DLCL.0013" "DLCL.0014" "DLCL.0015" "DLCL.0016" "DLCL.0017" "DLCL.0018"
+"DLCL.0020" "DLCL.0021" "DLCL.0023" "DLCL.0024" "DLCL.0025" "DLCL.0026"
+[25] "DLCL.0027" "DLCL.0028" "DLCL.0029" "DLCL.0030" "DLCL.0031" "DLCL.0032"
+"DLCL.0033" "DLCL.0034" "DLCL.0036" "DLCL.0037" "DLCL.0039" "DLCL.0040"
+[37] "DLCL.0041" "DLCL.0042" "DLCL.0048" "DLCL.0049"
+> as.character(eisenClasses[,2])
+ [1] "DLCL.0012" "DLCL.0024" "DLCL.0003" "DLCL.0026" "DLCL.0023" "DLCL.0015"
+"DLCL.0010" "DLCL.0030" "DLCL.0034" "DLCL.0018" "DLCL.0032" "DLCL.0037"
+[13] "DLCL.0001" "DLCL.0008" "DLCL.0004" "DLCL.0029" "DLCL.0009" "DLCL.0020"
+"DLCL.0033" "DLCL.0005" "DLCL.0011" "DLCL.0048" "DLCL.0027" "DLCL.0013"
+[25] "DLCL.0007" "DLCL.0028" "DLCL.0025" "DLCL.0021" "DLCL.0016" "DLCL.0002"
+"DLCL.0017" "DLCL.0040" "DLCL.0014" "DLCL.0031" "DLCL.0039" "DLCL.0042"
+[37] "DLCL.0041" "DLCL.0049" "DLCL.0006"
+> eisenSubset <- as.character(eisenClasses[,2])
+> eisenReordered <- eisen.df[,eisenSubset]
+> dimnames(eisenReordered)[[2]]
+ [1] "DLCL.0012" "DLCL.0024" "DLCL.0003" "DLCL.0026" "DLCL.0023" "DLCL.0015"
+"DLCL.0010" "DLCL.0030" "DLCL.0034" "DLCL.0018"
+[11] "DLCL.0032" "DLCL.0037" "DLCL.0001" "DLCL.0008" "DLCL.0004" "DLCL.0029"
+"DLCL.0009" "DLCL.0020" "DLCL.0033" "DLCL.0005"
+[21] "DLCL.0011" "DLCL.0048" "DLCL.0027" "DLCL.0013" "DLCL.0007" "DLCL.0028"
+"DLCL.0025" "DLCL.0021" "DLCL.0016" "DLCL.0002"
+[31] "DLCL.0017" "DLCL.0040" "DLCL.0014" "DLCL.0031" "DLCL.0039" "DLCL.0042"
+"DLCL.0041" "DLCL.0049" "DLCL.0006"
+
+> eisenClass1 <- eisenSubset[1:19]
+> eisenClass2 <- eisenSubset[20:39]
+> eisenClass1.1 <- as.numeric(eisenReordered[3, eisenClass1])
+> eisenClass1.2 <- as.numeric(eisenReordered[3, eisenClass2])
+> eisenClass1.1
+ [1] 0.490 0.523 -0.372 -0.247 0.407 0.391 0.528 0.428 0.365 0.212 1.112 NA
+0.339 -0.068 -0.054 0.691 0.734 0.814
+[19] -0.323
+> eisenClass1.2
+ [1] -1.371 0.691 0.423 0.142 0.757 0.403 NA 1.138 NA 0.134 -0.337 NA
+NA 0.340 0.598 NA 0.522 NA
+[19] 0.881 0.123
+> eisenClass1.1.noNa <- eisenClass1.1[!is.na(eisenClass1.1)];
+> eisenClass1.2.noNa <- eisenClass1.2[!is.na(eisenClass1.2)];
+> eisenClass1.1.noNa
+ [1] 0.490 0.523 -0.372 -0.247 0.407 0.391 0.528 0.428 0.365 0.212 1.112 0.339
+-0.068 -0.054 0.691 0.734 0.814 -0.323
+> eisenClass1.2.noNa
+ [1] -1.371 0.691 0.423 0.142 0.757 0.403 1.138 0.134 -0.337 0.340 0.598 0.522
+0.881 0.123
+> boxplot(eisenClass1.1.noNa, eisenClass1.2.noNa, names=c("Class1", "Class 2"),
+col=c("red", "blue”), main="Boxplot of Gene 3: Class 1 vs Class2")
+
+>par(mfrow=c(2,1))
+> hist(eisenClass1.1.noNa, col="red")
+> hist(eisenClass1.2.noNa, col="blue")
+
+> x <- as.numeric(eisenReordered[8000, eisenClass1])
+> y <- as.numeric(eisenReordered[8000, eisenClass2])
+> x <- x[!is.na(x)];
+> y <- y[!is.na(y)];
+> xy.ttest <- t.test(x, y, alternative ="two.sided",paired = FALSE, var.equal =
+FALSE,conf.level = 0.95)
+> xy.ttest
+Welch Two Sample t-test
+data: x and y
+t = 2.226, df = 32.726, p-value = 0.03302
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ 0.03484702 0.77814245
+sample estimates:
+ mean of x mean of y
+ 0.06089474 -0.34560000
+> nx <- length(x)
+> ny <- length(y)
+> pool.var <- (((nx-1)*var(x)) + ((ny-1)*var(y)))/(nx+ny-2)
+> pool.var
+[1] 0.3320136
+> dif <- abs(mean(x)-mean(y))/sqrt(pool.var)
+> dif
+[1] 0.7054675
+> dif.1.5fold <- log2(3)/sqrt(pool.var)
+> pl.ss1.5 <- pwr.t.test(d=dif.1.5fold,sig.level=.05,power=0.8,type="two.sample")
+> pl.ss1.5
+ Two-sample t test power calculation
+ n = 3.364438
+ d = 2.750686
+ sig.level = 0.05
+ power = 0.8
+ alternative = two.sided
+NOTE: n is number in *each* group
+> pl.ss1.5 <- pwr.t.test(d=dif.1.5fold,sig.level=.05,power=0.99,type="two.sample")
+> pl.ss1.5
+ Two-sample t test power calculation
+ n = 6.034731
+ d = 2.750686
+ sig.level = 0.05
+ power = 0.99
+ alternative = two.sided
+NOTE: n is number in *each* group
+
+
+> t.test(eisenClass1.1.noNa, eisenClass1.2.noNa, alternative="two.sided",
+paired=FALSE, var.equal=FALSE, conf.level=0.95)
+Welch Two Sample t-test
+data: eisenClass1.1.noNa and eisenClass1.2.noNa
+t = 0.0752, df = 21.618, p-value = 0.9408
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -0.3789942 0.4074704
+sample estimates:
+mean of x mean of y
+0.3316667 0.3174286
+> eisenClass1.1.noNa.size <-length(eisenClass1.1.noNa)
+> eisenClass1.2.noNa.size <-length(eisenClass1.2.noNa)
+> eisenClass1.1.noNa.size
+[1] 18
+> eisenClass1.2.noNa.size
+[1] 14
+> pool.var <- (((eisenClass1.1.noNa.size-1)*var(eisenClass1.1.noNa)) +
+((eisenClass1.2.noNa.size-1)*var(eisenClass1.2.noNa)))/(eisenClass1.1.noNa.size
++eisenClass1.2.noNa.size-2)
+> pool.var
+[1] 0.2559458
+> eisenDelta <- abs(mean(eisenClass1.1.noNa)-mean(eisenClass1.2.noNa))/
+sqrt(pool.var)
+> eisenDelta.1.5fold <- log2(1.5)/sqrt(pool.var)
+> install.packages("pwr")
+> library(pwr)
+> samplesize.1.5fold <- pwr.t.test(d=eisenDelta.1.5fold,sig.level=.
+05,power=0.8,type="two.sample")
+> samplesize.1.5fold
+ Two-sample t test power calculation 
+ n = 12.77712
+ d = 1.156256
+ sig.level = 0.05
+ power = 0.8
+ alternative = two.sided
+NOTE: n is number in *each* group
+
+> samplesize.1.5fold <- pwr.t.test(d=eisenDelta.1.5fold,sig.level=.
+05,power=0.99,type="two.sample")
+> samplesize.1.5fold
+ Two-sample t test power calculation
+ n = 28.48621
+ d = 1.156256
+ sig.level = 0.05
+ power = 0.99
+ alternative = two.sided
+NOTE: n is number in *each* group
+
+> sd(eisen.df, na.rm=T)
+DLCL.0001 DLCL.0002 DLCL.0003 DLCL.0004 DLCL.0005 DLCL.0006 DLCL.0007
+DLCL.0008
+1.0250019 0.8589962 0.7835527 0.6927827 0.8631469 0.7155171 0.7342486
+0.8609841
+DLCL.0009 DLCL.0010 DLCL.0011 DLCL.0012 DLCL.0013 DLCL.0014 DLCL.0015
+DLCL.0016
+0.6774010 0.9732115 0.7907238 0.8221352 1.1063402 0.8126405 0.8905040
+0.8803820
+DLCL.0017 DLCL.0018 DLCL.0020 DLCL.0021 DLCL.0023 DLCL.0024 DLCL.0025
+DLCL.0026
+1.1957576 0.8390647 0.7990099 1.1748976 0.8830700 0.7947795 0.6634019
+0.9495975
+DLCL.0027 DLCL.0028 DLCL.0029 DLCL.0030 DLCL.0031 DLCL.0032 DLCL.0033
+DLCL.0034
+0.9327719 0.7301157 0.6978936 0.7406092 0.6771266 0.5860647 0.8678007
+0.6579139
+DLCL.0036 DLCL.0037 DLCL.0039 DLCL.0040 DLCL.0041 DLCL.0042 DLCL.0048
+DLCL.0049
+0.7932624 0.9213977 0.9242892 0.8751896 0.7788431 0.9701565 0.8496490
+0.9161627
+> eisen.sd <-sd(eisen.df, na.rm=T)
+> eisen.dens <- density(eisen.sd)
+> hist(eisen.sd,n=20, col="cyan", border="blue", main="", xlab="Standard Deviation (for
+data on the log2 scale)")
+> lines(eisen.dens$x, eisen.dens$y*par("usr")[4]/max(eisen.dens$y),col="red",lwd=2)
+> title("Histogram of Standard Deviations for 21,696 genes")
+
+> n=6; fold.change=3.0; power=0.8; sig.level=0.05;
+> all.size <- ssize(sd=eisen.sd, delta=log2(fold.change), sig.level=sig.level,
+power=power)
+....
+> all.size
+DLCL.0001 DLCL.0002 DLCL.0003 DLCL.0004 DLCL.0005 DLCL.0006 DLCL.0007
+DLCL.0008
+16.519077 12.414312 10.790158 9.035217 12.508038 9.454392 9.809996 12.459142
+DLCL.0009 DLCL.0010 DLCL.0011 DLCL.0012 DLCL.0013 DLCL.0014 DLCL.0015
+DLCL.0016
+ 8.759295 15.160045 10.938065 11.601959 18.796947 11.398534 13.137253
+12.902159
+DLCL.0017 DLCL.0018 DLCL.0020 DLCL.0021 DLCL.0023 DLCL.0024 DLCL.0025
+DLCL.0026
+21.503364 11.970590 11.110661 20.853048 12.964327 11.022318 8.513570
+14.564029
+DLCL.0027 DLCL.0028 DLCL.0029 DLCL.0030 DLCL.0031 DLCL.0032 DLCL.0033
+DLCL.0034 
+14.148355 9.730745 9.128300 9.932842 8.754428 7.247765 12.613668 8.418572
+DLCL.0036 DLCL.0037 DLCL.0039 DLCL.0040 DLCL.0041 DLCL.0042 DLCL.0048
+DLCL.0049
+10.990750 13.871610 13.941637 12.782553 10.693761 15.082104 12.204912
+13.745388
+> ssize.plot(all.size, lwd=2, col="magenta", xlim=c(1,20))
+> xmax <- par("usr")[2]-1;
+> ymin <- par("usr")[3] + 0.05
+> legend(x=xmax, y=ymin, legend= strsplit( paste("fold change=",fold.change,",",
+"alpha=", sig.level, ",", "power=",power,",", "# genes=", length(eisen.sd), sep=''), "," )[[1]],
+xjust=1, yjust=0, cex=1.0)
+> title("Sample Size to Detect 2-Fold Change")
+
+
+ 
+ 
