@@ -1,0 +1,57 @@
+comparing the transcript profiles from peripheral B lymphocytes 
+between patients with systemic lupus erythematosus (SLE) and normal healthy controls
+
+read.table("Desktop/Ahmed/microarray/sle_b_cell.txt", header = TRUE, row.names = 1)
+
+#store table in a dataframe object
+sle.table <- read.table("Desktop/Ahmed/microarray/sle_b_cell.txt", header = TRUE, row.names = 1)
+
+#dimensions of dataframe
+dim(sle.table)
+
+Plot the second SLE patient sample versus the first normal control
+samples in an xy scatter plot.
+
+#store the second column (second patient) in patient2 object
+patient2 <- sle.table[,2]
+
+#store the 18th column (first control) in control1 object
+control1 <- sle.table[,18]
+
+#plot control1 vs patient2
+plot(control1, patient2, main = "SLE B cell sample vs Normal B cell sample
+- all probesets", xlab = "Normal", ylab = "SLE")
+
+#add grid
+grid(NULL, NULL, col = "lightgray", lty = "dotted", lwd = par("lwd"), equilogs
+= TRUE)
+
+#only plot first 20 probesets, change to blue
+plot(patient2[1:20], control1[1:20], pch=15, col = "blue")
+
+# a gene profile plot, IGLJ3(immunoglobulin lambda joining 3), which is probeset ID 211881_x_at
+
+#store intensities
+gene1 <- sle.table["211881_x_at",]
+
+#put intensities into a vector
+intensity <- c(gene1[,1], gene1[,2], gene1[,3], gene1[,4], gene1[,5],
+gene1[,6], gene1[,7], gene1[,8], gene1[,9], gene1[,10], gene1[,11],
+gene1[,12], gene1[,13], gene1[,14], gene1[,15], gene1[,16], gene1[,17],
+gene1[,18], gene1[,19], gene1[,20], gene1[,21], gene1[,22], gene1[,23],
+gene1[,24], gene1[,25], gene1[,26])
+
+#store sample names
+sample.names <- colnames(sle.table)
+
+#put sample names into a vector
+sample.names.index <- c(sample.names)
+
+#plot the ranges
+plot(range(1:26), range(intensity))
+
+#plot sample indices on x-axis and intensities on y-axis
+plot(1:26, intensity)
+
+#add lines
+plot(1:26, intensity, lines(intensity))
