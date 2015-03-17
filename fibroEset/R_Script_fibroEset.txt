@@ -1,0 +1,40 @@
+> library(Biobase)
+> library(fibroEset)
+> data(fibroEset)
+> xx <- exprs(fibroEset)
+> colnames(xx) <- as.character(fibroEset$species)
+> fibroEset$species
+ [1] b b b b b b b b b b b g g g g g g g g g g g g h h h h h h h h h h h h h h h h h h h h h h
+h
+Levels: b g h
+
+> > RandomGenes <- as.data.frame(xx[sample(nrow(xx), 50), ])
+> class(RandomGenes)
+[1] "data.frame"
+
+> RandomGenes <- t(RandomGenes)
+> d <- dist(RandomGenes, method="manhattan")
+> plot(hclust(d2), main="Hierarchical Clustering Dendrogram of 50 Random
+Genes",cex.main=0.75)
+
+> hm.rg <-
+c("#FF0000","#CC0000","#990000","#660000","#330000","#000000","#000000","#0A33
+00","#146600","#1F9900","#29CC00","#33FF00")
+> dat <- RandomGenes
+> heatmap(as.matrix(dat),col=hm.rg)
+> heatmap(as.matrix(dat),col=hm.rg, main="Hierarchical Clustering Heat Map")
+
+RG.pca <- prcomp(t(RandomGenes),cor=F)
+RG.loadings <- RG.pca$x[,1:2]
+# kmeans clustering with random data
+library(mva)
+cl <- kmeans(RG.loadings, centers=3, iter.max=20)
+
+plot(RG.loadings, col = cl$cluster,cex=1, main='PCA plot of 50 Random Genes\np2 vs.
+p1')
+> text(RG.loadings[,1][colnames(RandomGenes) == "b"], RG.loadings[,2]
+[colnames(RandomGenes) == "b"], "bonobo", cex=0.6, pos=4, col="blue")
+> text(RG.loadings[,1][colnames(RandomGenes) == "g"], RG.loadings[,2]
+[colnames(RandomGenes) == "g"], "gorilla", cex=0.6, pos=4, col="blue")
+> text(RG.loadings[,1][colnames(RandomGenes) == "h"], RG.loadings[,2]
+[colnames(RandomGenes) == "h"], "human", cex=0.6, pos=4, col="blue")
