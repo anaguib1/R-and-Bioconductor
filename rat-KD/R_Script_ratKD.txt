@@ -1,0 +1,69 @@
+rat.df <- read.table("rat_KD.txt", header = T, row.names = 1)
+
+> rat.df <- log2(rat.df)
+> t.test.all.genes <- function(x,s1,s2) {
++ x1 <- x[s1]
++ x2 <- x[s2]
++ x1 <- as.numeric(x1)
++ x2 <- as.numeric(x2)
++ t.out <- t.test(x1,x2, alternative="two.sided",var.equal=T)
++ out <- as.numeric(t.out$p.value)
++ return(out)
+ }
+>
+> cl <- names(rat.df)
+> cl
+[1] "control.diet.19300" "control.diet.19301" "control.diet.19302"
+[4] "control.diet.19303" "control.diet.19304" "control.diet.19305"
+[7] "ketogenic.diet.19306" "ketogenic.diet.19307" "ketogenic.diet.19308"
+[10] "ketogenic.diet.19309" "ketogenic.diet.19310"
+> controls <- cl[1:6]
+> ketogenic <- cl[7:11]
+pv <- apply(rat.df,1,t.test.all.genes,s1= controls,s2= ketogenic)
+
+> par(mfrow=c(1,2))
+> hist(pv,col="lightblue",xlab="p-values",main="P-value dist’n between\nControl and Ketogenic groups",cex.main=0.9)
+> abline(v=.05,col=2,lwd=2)
+> hist(-log10(pv),col="lightblue",xlab="log10(p-values)", main="-log10(pv) dist’n between\nControl and Ketogenic
+groups",cex.main=0.9)
+> abline(v= -log10(.05),col=2,lwd=2)
+> p.trans <- -1 * log10(t.test.run)
+
+> pv.01<- pv[which(pv < .01)]
+> length(pv.01)
+[1] 2414
+> pv.05<- pv[which(pv < .05)]
+> length(pv.05)
+[1] 5160
+> length(pv)
+[1] 15923
+> pv.00000314 <- pv[which(pv < .00000314)]
+> length(pv.00000314)
+[1] 12
+
+> controls.m <- apply(rat.df[,controls],1,mean,na.rm=T)
+> ketogenic.m <- apply(rat.df[,ketogenic],1,mean,na.rm=T)
+> fold <- controls.m - ketogenic.m
+> fold
+pv <- apply(rat.df,1,t.test.all.genes,s1= controls,s2= ketogenic)
+
+> fold.linear <- controls.m/ketogenic.m
+> max(fold.linear)
+[1] 13.81962
+> min(fold.linear)
+[1] -225.8855
+> pv.314.f2 <- pv[which(pv < .00000314 & abs(fold.linear)>2)]
+> length(pv.314.f2)
+[1] 6
+> pv.314.f2
+1367553_x_at 1370239_at 1370240_x_at 1371102_x_at 1371245_a_at 1388608_x_at
+1.224053e-08 5.280180e-08 1.622293e-09 2.583221e-08 6.370531e-09 1.743055e-07
+
+> plot(range(p.trans),range(fold),type='n',xlab='-1*log10(p-value)',ylab='fold change',main='Volcano Plot\nControl and Ketogenic
+group differences')
+> points(p.trans,fold,col='black',pch=21,bg=1)
+> points(p.trans[(p.trans> -log10(.05)&fold>log2(2))],fold[(p.trans> -log10(.05)&fold>log2(2))],col=1,bg=2,pch=21)
+> points(p.trans[(p.trans> -log10(.05)&fold< -log2(2))],fold[(p.trans> -log10(.05)&fold< -log2(2))],col=1,bg=3,pch=21)
+> abline(h=log2(4))
+> abline(h=-log2(4))
+> abline(v= -log10(.05))
