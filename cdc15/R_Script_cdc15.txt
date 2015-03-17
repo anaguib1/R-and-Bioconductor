@@ -1,0 +1,38 @@
+>	spellman.df	<- read.table("spellman.txt")
+
+#	Look	at	the	dimensions	of	the	data	frame	and	make	sure	that	there	are	6,178	
+genes	and	77	arrays/sample
+>	dim	(spellman.df)
+[1]	6179	 78
+
+#Isolate	only	the	cdc15	experiment	(samples	23-46)
+cdc15.df<- spellman.df[,23:46]
+
+#	calculate	a	correlation	matrix	between	the	time	points	(use	Pearson’s correlation)
+cdc15.cor	<- cor(cdc15.df,	y=NULL,	use="pairwise.complete.obs",	
+method="pearson")
+colfunc	<- colorRampPalette(c("red",	"blue"))
+plot(cdc15.cor,	main	=	"Correlation	Matrix	Time	Points	cdc15",	
+xlab="Samples",	ylab="Time	Points",	col=colfunc(20))
+>	layout(matrix(1:2,ncol=2),	width	=	c(2,1),height	=	c(1,1))
+>	plot(cdc15.cor,	main	=	"Correlation	Matrix	Time	Points	cdc15",	
+xlab="Samples",	ylab="Time	Points",	col=colfunc(20))
+>	legend_image	<- as.raster(matrix(colfunc(20),	ncol=1))
+>	plot(c(0,2),c(0,1),type	=	'n',	axes	=	F,xlab	=	'',	ylab	=	'',	main	=	'legend	title')
+>	text(x=1.5,	y	=	seq(0,1,l=5),	labels	=	seq(0,1,l=5))
+>	rasterImage(legend_image,	0,	0,	1,1)
+
+#	Select	the	gene	YAL002W. Impute	the	missing	values	with	the	 row	mean
+>YAL002W.cdc15	<- cdc15.df[2,]
+>YAL002W.cdc15.rm	<- ifelse(is.na(YAL002W.cdc15),	
+rowMeans(YAL002W.cdc15,	na.rm=TRUE),	unlist(YAL002W.cdc15))
+
+#Generate	a	profile	plot	of	the	same	gene
+>YAL002W.vector	<- c(cdc15.df[2,])
+>YAL002W.vector	<- c(3.854941e-18,	3.854941e-18,	3.854941e-18,	-0.58,	
+0.23,	-0.23,	0.08,	-0.62,	0.55,	-0.32,	0.03,	-0.56,	0.47,	-0.15,	0.49,	3.854941e-18,	
+0.23,	-0.49,	0.33,	0.18,	0.65,	-0.29,	3.854941e-18,	3.854941e-18)
+>plot(YAL002W.vector,	type	=	"o",	col="blue")
+>title(main="YAL002W	Profile	Plot",	col.main="red",	font.main=4)
+>plot(YAL002W.vector,	main=	"Profile	Plot	YAL002W",	type	=	"o",	col="blue",	
+xlab="Time	Points",	lwd=	2)
