@@ -1,0 +1,174 @@
+#The very first step in our analysis of the cRCC samples will be to read in the microarray data into R using the read.table
+function and putting the data into a dataframe so we can conduct our manipulations.
+> rcc.df <- read.table("renal_cell_carcinoma.txt", header = TRUE, row.names = 1)
+#Checked that row names are in the correct location using the rownames function.
+> rownames(rcc.df)
+[1] "GSM146778_Normal" "GSM146780_Normal" "GSM146782_Normal" "GSM146784_Normal"
+"GSM146786_Normal" "GSM146789_Normal"
+[7] "GSM146790_Normal" "GSM146792_Normal" "GSM146794_Normal" "GSM146798_Normal"
+"GSM146796_Normal" "GSM146779_Tumor"
+[13] "GSM146781_Tumor" "GSM146783_Tumor" "GSM146785_Tumor" "GSM146787_Tumor"
+"GSM146788_Tumor" "GSM146791_Tumor"
+[19] "GSM146799_Tumor" "GSM146793_Tumor" "GSM146795_Tumor" "GSM146797_Tumor"
+
+
+#To check that the dimensions of our data frame are correct used the dim function.
+> dim(rcc.df)
+[1] 22283 22
+
+#Since the annotation file doesn’t contain a header we leave that logic out when reading in the file
+> rcc.ann <- read.table("renal_carcinoma_annotation.txt")
+#To get the Normal/Tumor identity of the samples we take from our annotation table the 9th column that contains the identity for
+each sample and then store it in rcc.cl (class label)
+> rcc.cl <- as.character(rcc.ann[,9])
+> rcc.cl
+[1] "Normal" "Normal" "Normal" "Normal" "Normal" "Normal" "Normal" "Normal" "Normal" "Normal" "Normal" "Tumor"
+"Tumor" "Tumor" "Tumor" "Tumor"
+[17] "Tumor" "Tumor" "Tumor" "Tumor" "Tumor" "Tumor"
+#To re label the header columns first I created a new column that would concatenate both the ID and identity vector using the
+paste function then I replaced the column with the new column names. At the end I checked that the column names have been
+changed properly using the colnames function.
+> newcolnames <- paste(colnames(rcc.df2), rcc.cl, sep="_")
+> length(newcolnames)
+[1] 22
+> colnames(rcc.df2)<- newcolnames
+> colnames(rcc.df2)
+[1] "GSM146778_Normal" "GSM146780_Normal" "GSM146782_Normal" "GSM146784_Normal"
+[5] "GSM146786_Normal" "GSM146789_Normal" "GSM146790_Normal" "GSM146792_Normal"
+[9] "GSM146794_Normal" "GSM146798_Normal" "GSM146796_Normal" "GSM146779_Tumor"
+[13] "GSM146781_Tumor" "GSM146783_Tumor" "GSM146785_Tumor" "GSM146787_Tumor"
+[17] "GSM146788_Tumor" "GSM146791_Tumor" "GSM146799_Tumor" "GSM146793_Tumor"
+[21] "GSM146795_Tumor" "GSM146797_Tumor"
+
+
+#The first visualization plot will use to identify potential outliers is a correlation plot heat map. In this plot the color intensity
+signifies the degree of correlation. Using blue arrows I’ve pointed out the samples that are good candidates to be outliers. In
+this plot they are GSM146798_Normal and GSM146799_Tumor.
+> rcc.cor <- cor(rcc.df2)
+> layout(matrix(c(1,1,1,1,1,1,1,1,2,2), 5, 2, byrow = TRUE))
+> par(oma=c(5,7,1,1))
+> leg <- seq(min(rcc.cor,na.rm=T),max(rcc.cor,na.rm=T),length=10)
+> image(rcc.cor,main="Pearson's correlation matrix\nRCC experiment",axes=F)
+> axis(1,at=seq(0,1,length=ncol(rcc.cor)),label=dimnames(rcc.cor)[[2]],cex.axis=0.9,las=2)
+> axis(2,at=seq(0,1,length=ncol(rcc.cor)),label=dimnames(rcc.cor)[[2]],cex.axis=0.9,las=2)
+
+
+
+#The second visualization plot to identify potential outliers is a hierarchical clustering dendrogram. In this plot the clusters show
+the distance or similarity between the data. Using blue arrows I’ve pointed out the samples that are good candidates to be
+outliers. Again, they are GSM146798_Normal and GSM146799_Tumor.
+> rcc.df2 <- t(rcc.df2)
+> rcc.dist <- dist(rcc.df2,method="euclidean")
+> rcc.clust <- hclust(rcc.dist,method="single")
+> plot(rcc.clust,labels=names(rcc.df2),cex=0.75)
+
+#The third visualization to identify potential outliers is a CV vs. mean plot. Using blue arrows I’ve pointed out the samples that
+are good candidates to be outliers. Again, they are GSM146798_Normal and GSM146799_Tumor.
+> rcc.mean <- apply(log2(rcc.df2), 2, mean)
+> rcc.sd <- sqrt(apply(log2(rcc.df2), 2, var))
+> rcc.cv <- rcc.sd/rcc.mean
+> plot(rcc.mean, rcc.cv,main="RCC dataset\nSample CV vs. Mean",xlab="Mean",ylab="CV",col='blue',cex=1.5,type="n")
+> points(rcc.mean, rcc.cv,bg="lightblue",col=1,pch=21)
+> text(rcc.mean, rcc.cv,label=dimnames(rcc.df2)[[2]],pos=1,cex=0.5)
+
+#The fourth visualization to identify potential outliers is an average correlation plot. Using blue arrows I’ve pointed out the
+samples that are good candidates to be outliers. Again, they are GSM146798_Normal and GSM146799_Tumor.
+> rcc.avg <- apply(rcc.cor,1,mean)
+> par(oma=c(3,0.1,0.1,0.1))
+> plot(c(1,length(rcc.avg)),range(rcc.avg),type="n",xlab="",ylab="Avg r",main="Avg correlation of Tumor/Normal
+samples",axes=F)
+> points(rcc.avg,bg="red",col=1,pch=21,cex=1.25)
+> axis(1,at=c(1:length(rcc.avg)),labels=dimnames(rcc.df2)[[2]],las=2,cex.lab=0.4,cex.axis=0.6)
+> axis(2)
+> abline(v=seq(0.5,62.5,1),col="grey")
+
+
+> install.packages("impute")
+> library(impute)
+
+#Since outliers are values that can disrupt the analysis of our data by contributing to variance inflation we will handle our two
+outliers, GSM146798_Normal and GSM146799_Tumor, by simply removing them from the data. Here I do this using the
+subset function.
+> rcc.df2 <- t(rcc.df2)
+> rcc.df2 <- subset(rcc.df2, select = -GSM146798_Normal)
+> rcc.df2 <- subset(rcc.df2, select = -GSM146799_Tumor)
+
+#Profile plot KNG1 probe set 206054_at
+> plot(as.numeric(rcc.df2["206054_at",]),type='l',lwd=2,col='red', main="RCC data set \ngene 206054_at" ,xlab="",
+ylab="Intensity",axes=F)
+> axis(1,at=c(1:ncol(rcc.df2)),labels=names(rcc.df2),las=2,cex.axis=0.7)
+> axis(2)
+
+#Profile plot KNG1 probe set 217512_at
+> plot(as.numeric(rcc.df2["217512_at",]),type='l',lwd=2,col='red', main="RCC data set \ngene 217512_at" ,xlab="",
+ylab="Intensity",axes=F)
+> axis(1,at=c(1:ncol(rcc.df2)),labels=names(rcc.df2),las=2,cex.axis=0.7)
+> axis(2)
+
+#Profile plot AQP2 probe set 206672_at
+> plot(as.numeric(rcc.df2["206672_at",]),type='l',lwd=2,col='red', main="RCC data set \ngene 206672_at" ,xlab="",
+ylab="Intensity",axes=F)
+> axis(1,at=c(1:ncol(rcc.df2)),labels=names(rcc.df2),las=2,cex.axis=0.7)
+> axis(2)
+
+#In order to assess the accuracy of performing a missing value imputation we will take a data point that we already know, in this
+case transcript "206054_at" of "GSM146784_Normal" sample. Here will replace the true measured data point and replace it
+with NA.
+> rcc.df2["206054_at", "GSM146784_Normal"]
+[1] 8385.3
+> rcc.m <- as.matrix(rcc.df2)
+> dim(rcc.m)
+[1] 22283 22
+> rcc.m[rcc.m=="8385.3"]<-NA
+> dim(rcc.m)
+[1] 22283 22
+> rcc.df2 <- as.data.frame(rcc.m)
+> rcc.df2["206054_at", "GSM146784_Normal"]
+[1] NA
+
+#One method to impute a missing value is using the K-nearest neighbor methodology, which assumes an inherent correlation
+between the samples and transcripts. This correlation was validated when we looked at the profile plots of a couple of
+transcripts above. When running the impute.knn function to impute the missing value using 6 nearest neighbors and Euclidean
+distance our result was 7632.983.
+> rcc.m2 <- rcc.m
+> rcc.m2 <- impute.knn(rcc.m, k=6)
+> rcc.m2["206054_at",]
+7632.983
+
+#We compare the original value, 8385.3, with our knn imputed value, 7632.983, by calculating the relative error. In this
+particular case the relative error is low, which signifies that the imputed value correlates well with the neighboring data. Using
+relative error to assess the accuracy of the impute.knn algorithm for imputing a missing value we find that the algorithm is very
+accurate for this data set.
+> relative.error <- (8385.3-7632.983)/8385.3
+> relative.error
+[1] 0.08971856
+
+#Another algorithm used to impute missing values is SVD, singular value decomposition. To retrieve this imputed value we
+stored the pcaRes object generated by the pca function in “result” then imputed the missing value in a new matrix,
+“result.output”, using the completeObs function. Finally we look in the new matrix for the imputed value. Using the pca
+function with the svdImpute method and number of components that should be extracted set to 9, our result is 10418.
+Using relative error to assess the accuracy of the svdImpute algorithm for imputing a missing value we find that the algorithm
+is less accurate for this data set in comparison to impute.knn. This is because the relative error is larger at 0.24.
+> result <- pca(rcc.m2, method="svdImpute", nPcs=9)
+change in estimate: 6.174373e-06
+> result.output <- completeObs(result)
+> result.output["206054_at", "GSM146784_Normal"]
+[1] 10418
+> relative.error2 <- abs(8385.3-10418)/8385.3
+> relative.error2
+[1] 0.2424123
+
+#To visually assess the outcomes of our two imputed values from SVD and KNN we plot a gene profile plot. The SVD imputed
+value is represented in red; KNN imputed value in green; original value in black. Looking at the plot we see that the SVD
+imputed value was more influenced by the spike in intensity from the GSM146782 normal sample while KNN is not and is
+thus closer to the original value.
+> gene <- "206054_at"
+>plot(c(1,ncol(rcc.df2)),range(as.numeric(rcc.df2[gene,])),type="n",xlab="",ylab="log2(intensity)",main="RCC Tumor
+and\nnormal samples",axes=F)
+> lines(c(1:ncol(rcc.df2)),as.numeric(rcc.df2[gene,]),lwd=2,col="blue")
+> grid()
+> axis(1,at=c(1:ncol(rcc.df2)),dimnames(rcc.df2)[[2]],las=2,cex.lab=0.7)
+> axis(2)
+> points(4, 7632.983,col="green") #KNN imputed value
+> points(4, 10418,col="red") #SVD imputed value
+> points(4, 8385.3,col="black") #original value
